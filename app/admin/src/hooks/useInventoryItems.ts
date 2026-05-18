@@ -17,31 +17,45 @@ interface UseInventoryItemsReturn {
 }
 
 export function useInventoryItems(): UseInventoryItemsReturn {
-    const [items, setItems] = useState<InventoryItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [items, setItems] = useState<InventoryItem[]>(() => {
+        const stored = localStorage.getItem("inventoryItems");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("inventoryItems"));
 
     // Initial fetch
     useEffect(() => {
         let cancelled = false;
 
-        inventoryService.fetchInventoryItems().then((data) => {
-            if (!cancelled) {
-                setItems(data);
-                setIsLoading(false);
-            }
-        });
+        if (!localStorage.getItem("inventoryItems")) {
+            inventoryService.fetchInventoryItems().then((data) => {
+                if (!cancelled) {
+                    setItems(data);
+                    localStorage.setItem("inventoryItems", JSON.stringify(data));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => { cancelled = true; };
     }, []);
 
     const handleEdit = useCallback(async (id: string, data: InventoryEditData) => {
         const updated = await inventoryService.updateInventoryItem(id, data);
-        setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+        setItems((prev) => {
+            const next = prev.map((item) => (item.id === id ? updated : item));
+            localStorage.setItem("inventoryItems", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const handleDelete = useCallback(async (id: string) => {
         await inventoryService.deleteInventoryItem(id);
-        setItems((prev) => prev.filter((item) => item.id !== id));
+        setItems((prev) => {
+            const next = prev.filter((item) => item.id !== id);
+            localStorage.setItem("inventoryItems", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const handleAddStock = useCallback(async (data: InventoryAddStockData) => {
@@ -49,10 +63,14 @@ export function useInventoryItems(): UseInventoryItemsReturn {
         setItems((prev) => {
             // Check if item already existed (was updated) or is new
             const exists = prev.some((item) => item.id === result.id);
+            let next;
             if (exists) {
-                return prev.map((item) => (item.id === result.id ? result : item));
+                next = prev.map((item) => (item.id === result.id ? result : item));
+            } else {
+                next = [...prev, result];
             }
-            return [...prev, result];
+            localStorage.setItem("inventoryItems", JSON.stringify(next));
+            return next;
         });
     }, []);
 

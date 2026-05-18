@@ -24,19 +24,25 @@ interface UseOrdersReturn {
 }
 
 export function useOrders(): UseOrdersReturn {
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [orders, setOrders] = useState<Order[]>(() => {
+        const stored = localStorage.getItem("orders");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("orders"));
 
     // Initial fetch
     useEffect(() => {
         let cancelled = false;
 
-        orderService.fetchOrders().then((data) => {
-            if (!cancelled) {
-                setOrders(data);
-                setIsLoading(false);
-            }
-        });
+        if (!localStorage.getItem("orders")) {
+            orderService.fetchOrders().then((data) => {
+                if (!cancelled) {
+                    setOrders(data);
+                    localStorage.setItem("orders", JSON.stringify(data));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => { cancelled = true; };
     }, []);
@@ -44,7 +50,11 @@ export function useOrders(): UseOrdersReturn {
     const handleAction = useCallback(async (orderId: string, action: string) => {
         if (action === "delete") {
             await orderService.deleteOrder(orderId);
-            setOrders((prev) => prev.filter((o) => o.id !== orderId));
+            setOrders((prev) => {
+                const next = prev.filter((o) => o.id !== orderId);
+                localStorage.setItem("orders", JSON.stringify(next));
+                return next;
+            });
             return;
         }
 
@@ -52,7 +62,11 @@ export function useOrders(): UseOrdersReturn {
         if (!newStatus) return;
 
         const updated = await orderService.updateOrderStatus(orderId, newStatus);
-        setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+        setOrders((prev) => {
+            const next = prev.map((o) => (o.id === orderId ? updated : o));
+            localStorage.setItem("orders", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     return {

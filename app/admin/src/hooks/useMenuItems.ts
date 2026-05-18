@@ -17,36 +17,54 @@ interface UseMenuItemsReturn {
 }
 
 export function useMenuItems(): UseMenuItemsReturn {
-    const [items, setItems] = useState<MenuItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [items, setItems] = useState<MenuItem[]>(() => {
+        const stored = localStorage.getItem("menuItems");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("menuItems"));
 
     // Initial fetch
     useEffect(() => {
         let cancelled = false;
 
-        menuService.fetchMenuItems().then((data) => {
-            if (!cancelled) {
-                setItems(data);
-                setIsLoading(false);
-            }
-        });
+        if (!localStorage.getItem("menuItems")) {
+            menuService.fetchMenuItems().then((data) => {
+                if (!cancelled) {
+                    setItems(data);
+                    localStorage.setItem("menuItems", JSON.stringify(data));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => { cancelled = true; };
     }, []);
 
     const handleEdit = useCallback(async (id: string, data: MenuItemFormData) => {
         const updated = await menuService.updateMenuItem(id, data);
-        setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+        setItems((prev) => {
+            const next = prev.map((item) => (item.id === id ? updated : item));
+            localStorage.setItem("menuItems", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const handleDelete = useCallback(async (id: string) => {
         await menuService.deleteMenuItem(id);
-        setItems((prev) => prev.filter((item) => item.id !== id));
+        setItems((prev) => {
+            const next = prev.filter((item) => item.id !== id);
+            localStorage.setItem("menuItems", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const handleCreate = useCallback(async (data: MenuItemFormData) => {
         const newItem = await menuService.createMenuItem(data);
-        setItems((prev) => [...prev, newItem]);
+        setItems((prev) => {
+            const next = [...prev, newItem];
+            localStorage.setItem("menuItems", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     return {

@@ -17,31 +17,45 @@ interface UseEmployeeReturn {
 }
 
 export function useEmployee(): UseEmployeeReturn {
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [employees, setEmployees] = useState<Employee[]>(() => {
+        const stored = localStorage.getItem("employees");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("employees"));
 
     // Initial fetch
     useEffect(() => {
         let cancelled = false;
 
-        employeeService.fetchEmployees().then((data) => {
-            if (!cancelled) {
-                setEmployees(data);
-                setIsLoading(false);
-            }
-        });
+        if (!localStorage.getItem("employees")) {
+            employeeService.fetchEmployees().then((data) => {
+                if (!cancelled) {
+                    setEmployees(data);
+                    localStorage.setItem("employees", JSON.stringify(data));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => { cancelled = true; };
     }, []);
 
     const deleteEmployee = useCallback(async (id: string) => {
         await employeeService.deleteEmployee(id);
-        setEmployees((prev) => prev.filter((e) => e.id !== id));
+        setEmployees((prev) => {
+            const next = prev.filter((e) => e.id !== id);
+            localStorage.setItem("employees", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const toggleEmployeeStatus = useCallback(async (id: string) => {
         const updated = await employeeService.toggleEmployeeStatus(id);
-        setEmployees((prev) => prev.map((e) => (e.id === id ? updated : e)));
+        setEmployees((prev) => {
+            const next = prev.map((e) => (e.id === id ? updated : e));
+            localStorage.setItem("employees", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     return {

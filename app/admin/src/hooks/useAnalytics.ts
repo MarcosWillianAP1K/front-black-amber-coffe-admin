@@ -12,23 +12,29 @@ interface UseAnalyticsReturn {
 }
 
 export function useAnalytics(): UseAnalyticsReturn {
-    const [data, setData] = useState<AnalyticsData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [data, setData] = useState<AnalyticsData | null>(() => {
+        const storedData = localStorage.getItem("analyticsData");
+        return storedData ? JSON.parse(storedData) : null;
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("analyticsData"));
 
     useEffect(() => {
         let cancelled = false;
 
-        analyticsService.fetchAnalytics().then((response) => {
-            if (!cancelled) {
-                setData(response);
-                setIsLoading(false);
-            }
-        });
+        if (!data) {
+            analyticsService.fetchAnalytics().then((response) => {
+                if (!cancelled) {
+                    setData(response);
+                    localStorage.setItem("analyticsData", JSON.stringify(response));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => {
             cancelled = true;
         };
-    }, []);
+    }, [data]);
 
     return { data, isLoading };
 }

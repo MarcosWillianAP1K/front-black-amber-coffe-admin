@@ -18,19 +18,25 @@ interface UseUsersReturn {
 }
 
 export function useUsers(): UseUsersReturn {
-    const [users, setUsers] = useState<User[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [users, setUsers] = useState<User[]>(() => {
+        const stored = localStorage.getItem("users");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !localStorage.getItem("users"));
 
     // Initial fetch
     useEffect(() => {
         let cancelled = false;
 
-        userService.fetchUsers().then((data) => {
-            if (!cancelled) {
-                setUsers(data);
-                setIsLoading(false);
-            }
-        });
+        if (!localStorage.getItem("users")) {
+            userService.fetchUsers().then((data) => {
+                if (!cancelled) {
+                    setUsers(data);
+                    localStorage.setItem("users", JSON.stringify(data));
+                    setIsLoading(false);
+                }
+            });
+        }
 
         return () => { cancelled = true; };
     }, []);
@@ -42,7 +48,11 @@ export function useUsers(): UseUsersReturn {
 
     const deleteUser = useCallback(async (id: string) => {
         await userService.deleteUser(id);
-        setUsers((prev) => prev.filter((u) => u.id !== id));
+        setUsers((prev) => {
+            const next = prev.filter((u) => u.id !== id);
+            localStorage.setItem("users", JSON.stringify(next));
+            return next;
+        });
     }, []);
 
     const toggleUserStatus = useCallback(async (id: string) => {
@@ -50,7 +60,11 @@ export function useUsers(): UseUsersReturn {
         if (!user) return;
 
         const updated = await userService.updateUserStatus(id, !user.active);
-        setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+        setUsers((prev) => {
+            const next = prev.map((u) => (u.id === id ? updated : u));
+            localStorage.setItem("users", JSON.stringify(next));
+            return next;
+        });
     }, [users]);
 
     return {
