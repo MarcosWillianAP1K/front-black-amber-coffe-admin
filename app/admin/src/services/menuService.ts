@@ -8,41 +8,15 @@
  */
 
 import type { MenuItem, MenuItemFormData } from "shared-utils/types/menu";
+import { MOCK_ITEMS_MENU } from "shared-utils/MockBD.js";
 
-// ──────────────────────────────────────────────
-// Mock data — will be removed when API is ready
-// ──────────────────────────────────────────────
+
 let nextId = 4;
 
-const MOCK_ITEMS: MenuItem[] = [
-    {
-        id: "1",
-        name: "Amber Reserve Espresso",
-        description: "Dark roast, honey processed, notes of molasses and sun-dried cherry.",
-        category: "Hot Coffee",
-        price: 4.50,
-        imageUrl: "",
-    },
-    {
-        id: "2",
-        name: "Obsidian Cold Brew",
-        description: "24-hour steep, velvety mouthfeel, smooth chocolate finish.",
-        category: "Cold Brew",
-        price: 5.75,
-        imageUrl: "",
-    },
-    {
-        id: "3",
-        name: "Artisan Croissant",
-        description: "Flaky, buttery layers, baked fresh daily with French butter.",
-        category: "Pastry",
-        price: 3.50,
-        imageUrl: "",
-    },
-];
+
 
 // In-memory store (simulates server state)
-let items = [...MOCK_ITEMS];
+let items = [...MOCK_ITEMS_MENU];
 
 // ──────────────────────────────────────────────
 // Service functions

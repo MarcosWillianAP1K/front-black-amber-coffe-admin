@@ -6,24 +6,12 @@
  */
 
 import type { Employee } from "shared-utils/types/employee";
+import { MOCK_EMPLOYEES } from "shared-utils/MockBD.js";
 
-// ──────────────────────────────────────────────
-// Mock data — will be removed when API is ready
-// ──────────────────────────────────────────────
+
 let nextId = 11;
 
-const MOCK_EMPLOYEES: Employee[] = [
-    { id: "1", name: "João Silva", email: "joao@blackamber.com", job: "barista", active: true, avatarUrl: "" },
-    { id: "2", name: "Maria Santos", email: "maria@blackamber.com", job: "cashier", active: true, avatarUrl: "" },
-    { id: "3", name: "Pedro Almeida", email: "pedro@blackamber.com", job: "manager", active: true, avatarUrl: "" },
-    { id: "4", name: "Ana Oliveira", email: "ana@blackamber.com", job: "barista", active: false, avatarUrl: "" },
-    { id: "5", name: "Carlos Souza", email: "carlos@blackamber.com", job: "staff", active: true, avatarUrl: "" },
-    { id: "6", name: "Sofia Pereira", email: "sofia@blackamber.com", job: "barista", active: true, avatarUrl: "" },
-    { id: "7", name: "Miguel Costa", email: "miguel@blackamber.com", job: "manager", active: false, avatarUrl: "" },
-    { id: "8", name: "Helena Rodrigues", email: "helena@blackamber.com", job: "staff", active: true, avatarUrl: "" },
-    { id: "9", name: "Gonçalo Fernandes", email: "goncalo@blackamber.com", job: "cashier", active: true, avatarUrl: "" },
-    { id: "10", name: "Beatriz Martins", email: "beatriz@blackamber.com", job: "barista", active: true, avatarUrl: "" },
-];
+
 
 let employees = [...MOCK_EMPLOYEES];
 

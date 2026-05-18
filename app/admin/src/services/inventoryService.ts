@@ -7,23 +7,14 @@
 
 import type { InventoryItem, InventoryAddStockData, InventoryEditData } from "shared-utils/types/inventory";
 import { deriveStockStatus } from "shared-utils/types/inventory";
+import { MOCK_ITEMS_INVENTORY } from "shared-utils/MockBD.js";
 
-// ──────────────────────────────────────────────
-// Mock data — will be removed when API is ready
-// ──────────────────────────────────────────────
+
 let nextId = 8;
 
-const MOCK_ITEMS: InventoryItem[] = [
-    { id: "1", name: "Arabica Coffee Beans", code: "COF-001", amount: 45, unit: "kg", status: "In Stock" },
-    { id: "2", name: "Whole Milk", code: "MLK-001", amount: 8, unit: "L", status: "Low Stock" },
-    { id: "3", name: "Oat Milk", code: "MLK-002", amount: 12, unit: "L", status: "In Stock" },
-    { id: "4", name: "Vanilla Syrup", code: "SYR-001", amount: 3, unit: "L", status: "Low Stock" },
-    { id: "5", name: "Paper Cups (Medium)", code: "CUP-001", amount: 250, unit: "un", status: "In Stock" },
-    { id: "6", name: "Croissant (Frozen)", code: "PST-001", amount: 0, unit: "un", status: "Out of Stock" },
-    { id: "7", name: "Chocolate Powder", code: "CHO-001", amount: 5, unit: "kg", status: "Low Stock" },
-];
 
-let items = [...MOCK_ITEMS];
+
+let items = [...MOCK_ITEMS_INVENTORY];
 
 // ──────────────────────────────────────────────
 // Service functions
