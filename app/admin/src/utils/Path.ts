@@ -9,5 +9,6 @@ export const APP_ROUTES = {
     STAFF: "/staff",
     SUPPORT: "/support",
     LOGOUT: "/logout",
-    LOGIN: "/login"
+    LOGIN: "/login",
+    SIGNUP: "/signup"
 };

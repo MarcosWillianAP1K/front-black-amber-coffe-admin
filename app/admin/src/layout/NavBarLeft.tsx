@@ -53,7 +53,7 @@ export function NavBarLeft() {
                 <NavItem
                     icon={LogOut}
                     label="Logout"
-                    to={APP_ROUTES.LOGOUT}
+                    to={APP_ROUTES.LOGIN}
                 />
             </div>
 

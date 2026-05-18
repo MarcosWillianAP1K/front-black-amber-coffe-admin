@@ -13,7 +13,8 @@ import { LiveOrders } from "./pages/content/LiveOrders";
 import { Inventory } from "./pages/content/Inventory";
 import { Analytics } from "./pages/content/Analytics";
 import { Staff } from "./pages/content/Staff";
-
+import { Login } from "./pages/Login";
+import { SignUp } from "./pages/SignUp";
 
 // Componente genérico para as telas não finalizadas
 // eslint-disable-next-line react-refresh/only-export-components
@@ -67,10 +68,14 @@ export const router = createBrowserRouter([
     },
     {
         path: APP_ROUTES.LOGOUT,
-        element: <EmConstrucao />
+        element: <Login />
     },
     {
         path: APP_ROUTES.LOGIN,
-        element: <EmConstrucao />
+        element: <Login />
+    },
+    {
+        path: APP_ROUTES.SIGNUP,
+        element: <SignUp />
     }
 ]);
